@@ -1,0 +1,3 @@
+*/15 * * * * root /usr/local/bin/backup save > /tmp/backup-save.log
+0 3 * * * root /usr/local/bin/backup remove-old > /tmp/backup-remove.log
+
