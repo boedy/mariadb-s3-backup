@@ -2,7 +2,7 @@ const child_process = require('child_process');
 const s3 = require('./S3');
 const moment = require('moment');
 
-const baseBackupCmd = 'mariabackup  --user root --password root  --backup';
+const mariaBackupConnectCmd = `mariabackup  --user root --password ${process.env.MYSQL_ROOT_PASSWORD}`;
 const backupDir = '/backup';
 
 const backupCompleted = () => {
@@ -16,7 +16,7 @@ const fullBackup = (database, time) => {
   const weekYear = time.format('YYYY-WW');
   const backupTimeFormat = time.format('YYYYMMDDTHHmmss');
   child_process.execSync(`rm -rf ${backupDir}`);
-  const command = `${baseBackupCmd} --target-dir ${backupDir}`;
+  const command = `${mariaBackupConnectCmd} --backup --target-dir ${backupDir}`;
   child_process.execSync(command);
   return s3.uploadDir(backupDir, `${database}/${weekYear}/${backupTimeFormat}-base`).then(backupCompleted);
 };
@@ -26,7 +26,7 @@ const incrementalBackup = (objects, database, time) => {
   const weekYear = time.format('YYYY-WW');
   const backupTimeFormat = time.format('YYYYMMDDTHHmmss');
   child_process.execSync(`rm -rf ${backupDir}`);
-  const command = `${baseBackupCmd} --incremental-basedir /backup-previous --target-dir ${backupDir}`;
+  const command = `${mariaBackupConnectCmd} --backup --incremental-basedir /backup-previous --target-dir ${backupDir}`;
   return s3.pullDir(objects[objects.length - 1], '/backup-previous')
     .then(() => {
       child_process.execSync(command);
@@ -51,10 +51,8 @@ const prepareBase = () => {
 
 const applyIncrement = () => {
   console.log('apply increment');
-  const baseCmd = `mariabackup --host database --user root --password root`;
   const restoreCmd = `--prepare --target-dir /mysql-backup --incremental-dir /backup-part --apply-log-only`;
-  const command = `${baseCmd} ${restoreCmd}`;
-  child_process.execSync(command);
+  child_process.execSync(`${mariaBackupConnectCmd} ${restoreCmd}`);
   child_process.execSync('rm -rf ./increment');
 };
 
