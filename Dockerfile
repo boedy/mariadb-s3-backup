@@ -11,7 +11,8 @@ RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - && \
     rm -rf /var/lib/apt/lists/*
 
 ADD . /app
-RUN ln -s /app/index.js /usr/local/bin/backup
+RUN ln -s /app/index.js /usr/local/bin/backup \
+    && chown mysql:root /etc/environment
 
 COPY docker-entrypoint.sh /usr/local/bin/
 COPY db-backup.cron /etc/cron.d/db_backup_cron

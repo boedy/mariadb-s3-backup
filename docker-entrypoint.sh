@@ -19,6 +19,7 @@ for arg; do
 done
 
 echo "starting cron-jobs service"
+printenv | grep -v "no_proxy" > /etc/environment
 service cron start
 
 #restore backup
@@ -26,8 +27,8 @@ echo "Check if backup is ready to restore.."
 if [ -d /mysql-backup ]; then
     echo "Restoring backup.."
     rm -rf /var/lib/mysql/*
-    mariabackup --user root --password root --copy-back --target-dir /mysql-backup --datadir /var/lib/mysql
-#    mv /mysql-backup /var/lib/mysql
+    mariabackup --user root --password root --move-back --target-dir /mysql-backup --datadir /var/lib/mysql
+    rm -rf /mysql-backup
     chown -R mysql:mysql /var/lib/mysql
 fi
 
