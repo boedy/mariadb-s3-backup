@@ -15,6 +15,7 @@
     "moment": "^2.21.0",
     "progress": "^2.0.0",
     "pushbullet": "^2.1.0",
-    "s3": "git+https://github.com/limoragni/node-s3-client.git"
+    "s3": "git+https://github.com/limoragni/node-s3-client.git",
+    "signal-exit": "^3.0.2"
   }
 }
