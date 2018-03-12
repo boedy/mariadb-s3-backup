@@ -4,7 +4,7 @@ const program = require('commander');
 const moment = require('moment');
 const s3 = require('./src/S3');
 const mariaBackup = require('./src/MariaBackup');
-const ps = require('./src/ps');
+const ps = require('./src/Process');
 const log = require('./src/Log')
 
 const backupInProgress = () => {
@@ -21,7 +21,7 @@ program
     const weekYear = moment().format('YYYY-WW');
     const database = cmd.path || process.env.STORAGE_PATH;
     try{
-      ps.isNotRunning()
+      ps.lock()
         .catch(backupInProgress)
         .then(() => s3.list(`${database}/${weekYear}/`))
         .then(objects => (objects.length === 0 || cmd.full)
@@ -38,7 +38,7 @@ program
   .option('-p, --path <path>', 'Storage path')
   .action((time, cmd) => {
     const database = cmd.path || process.env.STORAGE_PATH;
-    ps.isNotRunning()
+    ps.lock()
       .catch(backupInProgress)
       .then(() => mariaBackup.determineCorrectBackupFiles(database, moment(time)))
       .then(backupFiles => backupFiles.reduce((promise, backupFile) =>

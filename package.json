@@ -11,6 +11,7 @@
   "dependencies": {
     "commander": "^2.14.1",
     "dotenv": "^5.0.1",
+    "lockfile": "^1.0.3",
     "moment": "^2.21.0",
     "progress": "^2.0.0",
     "pushbullet": "^2.1.0",
